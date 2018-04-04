@@ -2,27 +2,32 @@
 
 set -e -u
 
-if [ -z "${OTP_REF}" ]; then
-  echo "OTP_REF not set"
-  exit 1
-fi
-
-echo "Building OTP_REF ${OTP_REF}"
-otp_url=https://github.com/erlang/otp/archive/${OTP_REF}.tar.gz
-otp_tar_name=$(basename https://github.com/erlang/otp/archive/${OTP_REF}.tar.gz)
+echo "Building ${OTP_REF}"
+otp_url=http://www.erlang.org/download/otp_src_17.5.tar.gz
 otp_untar_dir="otp-${OTP_REF}"
 
 wget -nv ${otp_url}
-echo "******====*******"
-ls
-echo "******====*******"
-tar -zxf ${otp_tar_name}
-chmod -R 777 ${otp_untar_dir}
+tar -zxf otp_src_17.5.tar.gz
+chmod -R 777 otp_src_17.5
 
-cd ${otp_untar_dir}
+cd otp_src_17.5
 
-./otp_build autoconf
+case ${OTP_REF} in
+	OTP-17* | maint-17)
+    patch -p1 -i ../build-otp/remove-private-unit32.patch
+    patch -p1 -i ../build-otp/hipe_x86_signal-fix.patch
+    patch -p1 -i ../build-otp/replace_glibc_check.patch
+    ;;
+esac
+
+export ERL_TOP=$PWD
+export PATH=$ERL_TOP/bin:$PATH
+export CPPFLAGS="-D_BSD_SOURCE"
+
+# ./otp_build autoconf
 ./configure \
+  --build="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)" \
+  --host="$(dpkg-architecture --query DEB_HOST_GNU_TYPE)" \
   --without-javac \
   --without-wx \
   --without-debugger \
@@ -42,14 +47,16 @@ cd ${otp_untar_dir}
   --without-orber \
   --without-percept \
   --without-typer \
-  --with-ssl \
   --enable-threads \
-  --enable-dirty-schedulers
+  --enable-dirty-schedulers \
+	--enable-shared-zlib \
+	--enable-ssl=dynamic-ssl-lib \
+  --disable-hipe
 
 make -j4
 make release
 
 cd ../
-mv otp-${OTP_REF}/release/x86_64-unknown-linux-gnu/ ${OTP_REF}
-rm ${OTP_REF}.tar.gz
+mv otp_src_17.5/release/x86_64-unknown-linux-gnu/ ${OTP_REF}
+rm otp_src_17.5.tar.gz
 tar -zcf out/${OTP_REF}.tar.gz ${OTP_REF}

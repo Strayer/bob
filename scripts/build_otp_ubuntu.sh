@@ -2,24 +2,14 @@
 
 set -e -u
 
-if [ -z "${OTP_REF}" ]; then
-  echo "OTP_REF not set"
-  exit 1
-fi
-
-echo "Building OTP_REF ${OTP_REF}"
+echo "Building ${OTP_REF}"
 otp_url=https://github.com/erlang/otp/archive/${OTP_REF}.tar.gz
-otp_tar_name=$(basename https://github.com/erlang/otp/archive/${OTP_REF}.tar.gz)
-otp_untar_dir="otp-${OTP_REF}"
 
 wget -nv ${otp_url}
-echo "******====*******"
-ls
-echo "******====*******"
-tar -zxf ${otp_tar_name}
-chmod -R 777 ${otp_untar_dir}
+tar -zxf ${OTP_REF}.tar.gz
+chmod -R 777 otp-${OTP_REF}
 
-cd ${otp_untar_dir}
+cd otp-${OTP_REF}
 
 ./otp_build autoconf
 ./configure --with-ssl --enable-dirty-schedulers

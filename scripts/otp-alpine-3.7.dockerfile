@@ -11,15 +11,16 @@ RUN apk add --no-cache \
     ncurses-dev \
     unixodbc-dev \
     zlib-dev \
-    # dpkg-dev \
-    # dpkg \
     autoconf \
     build-base \
-    perl-dev
+    perl-dev \
+    dpkg-dev \
+    dpkg
 
-RUN mkdir -p /home/build/out
-WORKDIR /home/build
+RUN mkdir -p /build/out
+WORKDIR /build
 
-COPY build_otp_alpine.sh /home/build/build.sh
-RUN chmod +x /home/build/build.sh
+COPY build_otp_alpine.sh /build/build.sh
+COPY build-otp /build/build-otp
+RUN chmod +x /build/build.sh
 CMD ./build.sh

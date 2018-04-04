@@ -19,6 +19,7 @@ function fastly_purge {
 
 cp ${scripts}/otp-${linux}.dockerfile .
 cp ${scripts}/build_otp_*.sh .
+cp -r ${scripts}/build_otp .
 
 docker rm $(docker ps -aq) || true
 docker build -t otp-build -f otp-${linux}.dockerfile .
