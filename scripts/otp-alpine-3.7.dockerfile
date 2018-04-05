@@ -1,4 +1,4 @@
-FROM alpine:3.7
+FROM alpine:3.2
 
 RUN apk --no-cache upgrade
 
@@ -13,9 +13,7 @@ RUN apk add --no-cache \
     zlib-dev \
     autoconf \
     build-base \
-    perl-dev \
-    dpkg-dev \
-    dpkg
+    perl-dev
 
 RUN mkdir -p /build/out
 WORKDIR /build

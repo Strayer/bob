@@ -3,20 +3,20 @@
 set -e -u
 
 echo "Building ${OTP_REF}"
-otp_url=http://www.erlang.org/download/otp_src_17.5.tar.gz
-otp_untar_dir="otp-${OTP_REF}"
+otp_url=https://github.com/erlang/otp/archive/${OTP_REF}.tar.gz
 
 wget -nv ${otp_url}
-tar -zxf otp_src_17.5.tar.gz
-chmod -R 777 otp_src_17.5
+tar -zxf ${OTP_REF}.tar.gz
+chmod -R 777 otp-${OTP_REF}
 
-cd otp_src_17.5
+cd otp-${OTP_REF}
 
 case ${OTP_REF} in
 	OTP-17* | maint-17)
     patch -p1 -i ../build-otp/remove-private-unit32.patch
     patch -p1 -i ../build-otp/hipe_x86_signal-fix.patch
     patch -p1 -i ../build-otp/replace_glibc_check.patch
+    patch -p1 -i ../build-otp/remove_rpath.patch
     ;;
 esac
 
@@ -24,10 +24,8 @@ export ERL_TOP=$PWD
 export PATH=$ERL_TOP/bin:$PATH
 export CPPFLAGS="-D_BSD_SOURCE"
 
-# ./otp_build autoconf
+./otp_build autoconf
 ./configure \
-  --build="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)" \
-  --host="$(dpkg-architecture --query DEB_HOST_GNU_TYPE)" \
   --without-javac \
   --without-wx \
   --without-debugger \
@@ -57,6 +55,6 @@ make -j4
 make release
 
 cd ../
-mv otp_src_17.5/release/x86_64-unknown-linux-gnu/ ${OTP_REF}
-rm otp_src_17.5.tar.gz
+mv otp-${OTP_REF}/release/x86_64-unknown-linux-gnu/ ${OTP_REF}
+rm ${OTP_REF}.tar.gz
 tar -zcf out/${OTP_REF}.tar.gz ${OTP_REF}
