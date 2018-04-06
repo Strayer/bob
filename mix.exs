@@ -15,7 +15,7 @@ defmodule Bob.Mixfile do
   def application() do
     [
       mod: {Bob, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :jason]
     ]
   end
 

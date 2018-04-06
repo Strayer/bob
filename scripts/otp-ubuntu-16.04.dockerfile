@@ -26,9 +26,9 @@ RUN apt-get install -y \
   fop \
   xsltproc
 
-RUN mkdir -p /home/build/out
-WORKDIR /home/build
+RUN mkdir -p /build
+WORKDIR /build
 
-COPY build_otp_ubuntu.sh /home/build/build.sh
-RUN chmod +x /home/build/build.sh
+COPY build_otp_ubuntu.sh /build/build.sh
+RUN chmod +x /build/build.sh
 CMD ./build.sh
